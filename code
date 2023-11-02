@@ -1,0 +1,141 @@
+/**
+ * This script allows users to interact with two layered images on a canvas using touch or mouse input.
+ * Users can "wipe away" the top image to reveal the bottom image beneath it, creating a masking effect.
+ * The mask is drawn on a separate graphics object that is then used to determine the transparency of the top image.
+ * 
+ * GPT Architecture: ChatGPT with GPT-4 architecture
+ * ChatGPT Version Date: 2022-01
+ * Prompt: User has requested to comment all code and add a header comment with a brief description, including GPT architecture and version date.
+ */
+
+// Variables to hold image and graphics objects
+let topImage;
+let bottomImage;
+let maskGraphics;
+
+// preload() loads images before setup() and draw() are called
+function preload() {
+  // Load images to be displayed on top and bottom
+  topImage = loadImage('FORTOP1.png');
+  bottomImage = loadImage('FORBG1.png');
+}
+
+// setup() is called once at the start of the program
+function setup() {
+  // Set pixel density to 1 for consistent display across different screens
+  pixelDensity(1); 
+  // Create a full-window canvas and handle touchMoved event to prevent default behavior
+  let canvas = createCanvas(windowWidth, windowHeight);
+  canvas.touchMoved(function() { 
+    return false; 
+  });
+
+  // Create a graphics object where the mask will be drawn
+  maskGraphics = createGraphics(414, 736); 
+  maskGraphics.background(255); // Start with a white background (fully opaque)
+  imageMode(CENTER); // Draw images from their center
+  image(topImage, width/2, height/2); // Draw the top image once at the center
+
+  // Add an event listener to prevent default scrolling behavior when touching canvas
+  document.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+}
+
+// Variable to hold the previous touch coordinates
+let prevTouch = { x: 0, y: 0 }
+
+// draw() is called in a loop after setup()
+function draw() {
+  // Set the background to black
+  background(0);
+  
+  // When the mouse is pressed or screen is touched, draw a line on the mask graphics
+  if (mouseIsPressed) {
+    // Set the color and stroke weight for the mask drawing
+    maskGraphics.stroke(0);
+    maskGraphics.strokeWeight(20);
+
+    // Calculate the current mouse position relative to the center of the canvas
+    let mx = mouseX - width / 2 + maskGraphics.width / 2;
+    let my = mouseY - height / 2 + maskGraphics.height / 2;
+    // Draw a line on the mask graphics from the previous touch point to the current point
+    maskGraphics.line(prevTouch.x, prevTouch.y, mx, my);
+    // Update the previous touch coordinates
+    prevTouch.x = mx;
+    prevTouch.y = my;
+  }
+
+  // Apply the masking operation
+  // Load the pixel data of the top image and mask graphics for manipulation
+  topImage.loadPixels();
+  maskGraphics.loadPixels();
+  
+  // Loop through each pixel of the top image
+  for (let y = 0; y < topImage.height; y++) {
+    for (let x = 0; x < topImage.width; x++) {
+      // Calculate the index for the pixels array
+      const index = (x + y * topImage.width) * 4;
+      // Get the grayscale value of the current pixel from the mask
+      const maskValue = maskGraphics.pixels[index];
+      
+      // If the mask pixel is more black than white, make the top image pixel transparent
+      if (maskValue < 128) {
+        topImage.pixels[index + 3] = 0;
+      }
+    }
+  }
+  
+  // Update the top image's pixels with the new transparency values
+  topImage.updatePixels();
+  
+  // Draw the bottom image, then the top image on the canvas
+  image(bottomImage, width/2, height/2);
+  image(topImage, width/2, height/2);
+}
+
+// touchMoved() is called when the user moves their finger on the screen
+function touchMoved() {
+  // Check if there's at least one touch point
+  if(touches.length > 0) {
+    // Normalize touch coordinates and scale them to the mask graphics size
+    let touchX = touches[0].x / width;
+    let touchY = touches[0].y / height;
+    let x = touchX * maskGraphics.width;
+    let y = touchY * maskGraphics.height;
+    
+    // Draw a line on the mask graphics at the touch location
+    maskGraphics.stroke(0);
+    maskGraphics.strokeWeight(20);
+    maskGraphics.line(prevTouch.x, prevTouch.y, x, y);
+    
+    // Update the previous touch coordinates
+    prevTouch.x = x;
+    prevTouch.y = y;
+  }
+  // Return false to prevent default behavior
+  return false; 
+}
+
+// touchStarted() is called once when a new touch is initiated
+function touchStarted() {
+  // Check if there's at least one touch point
+  if(touches.length > 0) {
+    // Normalize and scale touch coordinates
+    let touchX = touches[0].x / width;
+    let touchY = touches[0].y / height;
+    let x = touchX * maskGraphics.width;
+    let y = touchY * maskGraphics.height;
+    
+    // Draw a point on the mask graphics at the touch start location
+    maskGraphics.stroke(0);
+    maskGraphics.strokeWeight(20);
+    maskGraphics.point(x, y);
+
+    // Update the previous touch coordinates
+    prevTouch.x = x;
+    prevTouch.y = y;
+  }
+  // Return false to prevent default behavior
+  return false; 
+}
