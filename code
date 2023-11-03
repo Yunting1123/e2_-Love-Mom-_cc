@@ -1,4 +1,8 @@
 //Group 2
+//Based on the examples and references in P5.js and ChatGPT
+//examples in p5.js: Coordinates, Load and Display Image, 
+//references: mask(), imageMode()
+//The mask function did not work well enough to achieve the effect we wanted, so we asked ChatGPT if we could achieve the effect of erasing the top image in a different way.
 
 /**
  * This script allows users to interact with two layered images on a canvas using touch or mouse input.
