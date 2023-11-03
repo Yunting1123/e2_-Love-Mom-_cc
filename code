@@ -1,3 +1,5 @@
+//Group 2
+
 /**
  * This script allows users to interact with two layered images on a canvas using touch or mouse input.
  * Users can "wipe away" the top image to reveal the bottom image beneath it, creating a masking effect.
