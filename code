@@ -11,7 +11,7 @@
  * 
  * GPT Architecture: ChatGPT with GPT-4 architecture
  * ChatGPT Version Date: 2022-01
- * Prompt: User has requested to comment all code and add a header comment with a brief description, including GPT architecture and version date.
+ * Prompt: Achieve the effect of erasing the top image in P5.js. User has requested to comment all code and add a header comment with a brief description, including GPT architecture and version date.
  */
 
 // Variables to hold image and graphics objects
